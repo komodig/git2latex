@@ -1,0 +1,17 @@
+ii  preview-latex-style                        11.91-1ubuntu1                              all          extraction of elements from LaTeX documents as graphics
+ii  tex-common                                 6.09                                        all          common infrastructure for building and installing TeX
+ii  texlive                                    2017.20180305-1                             all          TeX Live: A decent selection of the TeX Live packages
+ii  texlive-base                               2017.20180305-1                             all          TeX Live: Essential programs and files
+ii  texlive-binaries                           2017.20170613.44572-8ubuntu0.1              amd64        Binaries for TeX Live
+ii  texlive-extra-utils                        2017.20180305-2                             all          TeX Live: TeX auxiliary programs
+ii  texlive-font-utils                         2017.20180305-2                             all          TeX Live: Graphics and font utilities
+ii  texlive-fonts-extra                        2017.20180305-2                             all          TeX Live: Additional fonts
+ii  texlive-fonts-recommended                  2017.20180305-1                             all          TeX Live: Recommended fonts
+ii  texlive-generic-recommended                2017.20180305-1                             all          TeX Live: transitional dummy package
+ii  texlive-lang-french                        2017.20180305-1                             all          TeX Live: French
+ii  texlive-lang-german                        2017.20180305-1                             all          TeX Live: German
+ii  texlive-latex-base                         2017.20180305-1                             all          TeX Live: LaTeX fundamental packages
+ii  texlive-latex-extra                        2017.20180305-2                             all          TeX Live: LaTeX additional packages
+ii  texlive-latex-recommended                  2017.20180305-1                             all          TeX Live: LaTeX recommended packages
+ii  texlive-pictures                           2017.20180305-1                             all          TeX Live: Graphics, pictures, diagrams
+ii  texlive-plain-generic                      2017.20180305-2                             all          TeX Live: Plain (La)TeX packages

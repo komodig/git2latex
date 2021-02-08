@@ -1,0 +1,108 @@
+\documentclass[a4paper,11pt]{article}
+\title{Rechnung}
+\date{\VAR{date}}
+
+\usepackage{booktabs}
+\usepackage[normalem]{ulem}
+\usepackage{marvosym}
+\usepackage[ngerman]{babel}
+\usepackage{anysize}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{changepage}
+
+\pagestyle{fancy}
+
+\lhead{}
+\chead{}
+\rhead{
+    \sffamily
+    \begin{flushleft}
+    \end{flushleft}
+    \begin{flushright}
+    Max Person\\
+    some street 23\\
+    01234 some town\\
+    your@email.de\\
+    \end{flushright}
+}
+\renewcommand{\headrulewidth}{0.0pt}
+\setlength{\headsep}{1cm}
+\setlength{\headheight}{3cm}
+\setlength{\textheight}{20.5cm}
+
+\lfoot{
+    \footnotesize
+    \sffamily
+    \begin{tabular*}{0.75\textwidth}{@{\extracolsep{1.0cm}}llll}
+Max Person & your@email.de & Some Bank & U.St.ID\\
+01234 some town && IBAN: DE4943 0609 6711 3026 4500 & DE123456789 \\
+    \end{tabular*}
+}
+\cfoot{}
+\rfoot{}
+
+\renewcommand{\footrulewidth}{0.4pt}
+\begin{document}
+\sffamily
+\begin{flushleft}
+\textbf{Firma Auftraggeber GmbH}\\
+Auch eine Stra"se 15\\
+04321 Andere Stadt\\[2cm]
+\textbf{\large{H O N O R A R R E C H N U N G}}\\[1.3cm]
+\end{flushleft}
+\begin{tabular*}{0.98\textwidth}{@{\extracolsep{1.3cm}}llll}
+Rechnungsnummer & Rechnungsdatum & Kd.-Nr. & Leistungszeitraum\\
+\toprule[0.05em]
+	2004001 & \VAR{date} & 2001 & M"arz\\
+\end{tabular*}
+\begin{flushleft}
+\vspace{0.5cm}
+Entsprechend unserer Vereinbarung, erlaube ich mir in Rechnung zu stellen:\\[0.3cm]
+\end{flushleft}
+\ttfamily
+\begin{tabular*}{0.75\textwidth}{@{\extracolsep{2.5cm}}lr}
+Entwicklung an Software-Projekten: & \\
+& \\
+reeknersprook (rs) & \\
+avr-uno (avr) & \\
+              & \\
+	\VAR{hours} Stunden \`a \VAR{rate} \EUR & \VAR{fee} EUR\\
+	zzgl. \VAR{tax_rate} \% Mwst. & \uline{\hspace{5mm}\VAR{tax} EUR}\\[0.5em]
+	\textbf{Gesamtbetrag} & \textbf{\uuline{\hspace{1mm}\VAR{total} EUR}}\\
+\end{tabular*}
+
+\sffamily
+\begin{flushleft}
+\vspace{0.2cm}
+Vielen Dank f"ur den Auftrag und die gute und freundliche Zusammenarbeit.
+Eine Auflistung der geleisteten Stunden findet sich auf der nachfolgenden Seite.
+Der Rechnungsbetrag ist nach Rechnungserteilung sofort zur Zahlung f"allig. 
+Ich bitte um "Uberweisung auf unten stehendes Konto.\\[0.5cm]
+Mit freundlichen Gr"u"sen,\\[0.3cm]
+Max Person\\
+\newpage
+\end{flushleft}
+
+\ttfamily
+\small
+\begin{adjustwidth}{-0.5cm}{-1cm}
+\setlength{\tabcolsep}{3mm}
+\begin{tabular}{l l l}
+\multicolumn{1}{l}{\textbf{Datum}} & \multicolumn{1}{l}{\textbf{Std.}} & \multicolumn{1}{l}{\textbf{T"atigkeiten}} \\
+\toprule[0.05em] \\
+\RUN for line in worklogs
+\VAR{line.date} & \VAR{line.hours} & \VAR{line.text}\\
+\RUN if line.count == 0
+\end{tabular}
+\end{adjustwidth}
+\newpage
+\begin{adjustwidth}{-0.5cm}{-1cm}
+\begin{tabular}{l l l}
+\multicolumn{1}{l}{\textbf{Datum}} & \multicolumn{1}{l}{\textbf{Std.}} & \multicolumn{1}{l}{\textbf{T"atigkeiten}} \\
+\toprule[0.05em]\\
+\RUN endif
+\RUN endfor
+\end{tabular}
+\end{adjustwidth}
+\end{document}
