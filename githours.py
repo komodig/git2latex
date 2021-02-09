@@ -42,11 +42,9 @@ def _break_into_lines(line: str, max_length: int):
 
 def load_text_json(worklog_file):
     """
-
-    @param worklog_file: base name for <your_extracted_workhours>.json and <your_extracted_commit_messages>.text.json
+    @param worklog_file: json file with commit messages
     @return:
     """
-    worklog_file = worklog_file.replace('.json', '.text.json')
     print('reading: ' + worklog_file)
     commits = []
     with open(worklog_file, 'r') as wlog:
@@ -93,7 +91,10 @@ class ProjectDays:
 
     def parse_commits(self):
         os.chdir(self.workspace)
-        print(os.getcwd())
+        print('entering workspace: {}'.format(os.getcwd()))
+        if not os.path.exists(os.path.join(os.getcwd(), '.git')):
+            print('error: not a git workspace!')
+            exit(1)
 
         s = subprocess.check_output('git log --author="Lutz Ballaschke"', shell=True)
         s = s.decode('utf-8')
@@ -128,7 +129,6 @@ class ProjectDays:
 
     def write_text_json(self, worklog_file):
         self._commits_to_worklog()
-        worklog_file = worklog_file.replace('.json', '.text.json')
         print('writing: ' + worklog_file)
         with open(worklog_file, 'w') as wlog:
             for commit in self.commits:
@@ -198,11 +198,11 @@ class ProjectDays:
         for line in lines_orig:
             line_text = line['text'].replace('_', '-')    # no underscores when using pdflatex
             line_text = line_text.replace('%', '')    # no % when using pdflatex
-            print(line_text)
+            #print(line_text)
             new_lines = _break_into_lines(line_text, line_length)
             new_lines[-1] = '{} ({})'.format(new_lines[-1], line['name'])
-            print(new_lines)
-            print('------------------')
+            #print(new_lines)
+            #print('------------------')
 
             lines_mod += new_lines
 
@@ -239,39 +239,43 @@ if __name__ == '__main__':
         print('please use python3!')
         exit(1)
 
-    template_dir = os.path.dirname(TEMPLATE_PATH)
-    template = os.path.basename(TEMPLATE_PATH)
-
     parser = ArgumentParser()
     parser.add_argument('-p', '--phase', default='1', choices=['1', '2'])
-    parser.add_argument('-w', '--workrecords', default=WORK_RECORDS)
-    parser.add_argument('-t', '--template', default=template)
-    parser.add_argument('-s', '--startdate', default=START_DATE)
-    parser.add_argument('-e', '--enddate', default=END_DATE)
-    parser.add_argument('-l', '--linelength', default=60, type=int)
-    parser.add_argument('-r', '--hourlyrate', default=80, type=int)
+    parser.add_argument('-w', '--workdays', default='workdays.json')
+    parser.add_argument('-m', '--messages', default='messages.json')
+    parser.add_argument('-t', '--template', default='bill-example.tex')
 
     args = parser.parse_args()
 
-    sdate = datetime.strptime(args.startdate + ' +0100', '%Y-%m-%d %z')
-    edate = datetime.strptime(args.enddate + ' +0100', '%Y-%m-%d %z')
+    template = os.path.basename(args.template)
+    template_dir = os.path.dirname(args.template)
+    if template_dir == '':
+        template_dir = os.getcwd()
+
+    if os.path.dirname(args.workdays) == '':
+        args.workdays = os.path.join(os.getcwd(), args.workdays)
+
+    if os.path.dirname(args.messages) == '':
+        args.messages = os.path.join(os.getcwd(), args.messages)
+
+    sdate = datetime.strptime(START_DATE + ' +0100', '%Y-%m-%d %z')
+    edate = datetime.strptime(END_DATE + ' +0100', '%Y-%m-%d %z')
 
     project_list = []
     for proj in PROJECTS:
-        ws_path = os.path.join(BASE_DIR, proj['workspace'])
-        project_list.append(ProjectDays(sdate, edate, ws_path, proj['name'], parse=True))
+        project_list.append(ProjectDays(sdate, edate, proj['workspace'], proj['name'], parse=True))
 
     all_commits = ProjectDays(sdate, edate, name='all')
     for proj in project_list:
         all_commits += proj
 
     if args.phase == '1':
-        all_commits.write_days_json(args.workrecords)
-        all_commits.write_text_json(args.workrecords)
+        all_commits.write_days_json(args.workdays)
+        all_commits.write_text_json(args.messages)
 
     if args.phase == '2':
-        commits = load_text_json(args.workrecords)
+        commits = load_text_json(args.messages)
         all_commits = ProjectDays(sdate, edate, name='all', commits=commits)
-        all_commits.worklogs = load_days_json(args.workrecords)
-        all_commits.render_template(template_dir, args.template, args.hourlyrate, args.linelength)
+        all_commits.worklogs = load_days_json(args.workdays)
+        all_commits.render_template(template_dir, args.template, HOURLY_RATE, LINE_LENGTH)
 
