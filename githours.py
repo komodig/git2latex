@@ -10,30 +10,7 @@ from argparse import ArgumentParser
 from jinja2 import Environment, FileSystemLoader
 from functools import reduce
 from decimal import Decimal, ROUND_HALF_DOWN
-
-TAX_RATE = 16
-PAGE_LINES = 44
-WORKDAY_HOURS = 8
-
-workspace_path = os.path.join('/', 'home', 'karl', 'workspace')
-
-################## SECTION: GIT REPOS ##########################
-
-projects = [
-    {
-        'workspace': 'reeknersprook',
-        'name': 'rs'
-    },
-    {
-        'workspace': 'avr-uno',
-        'name': 'avr'
-    }
-]
-
-default_start = '2018-01-01'
-default_end = '2018-12-31'
-
-################################################################
+from settings import *
 
 
 commit_parse_format = '%a %b %d %H:%M:%S %Y %z'
@@ -141,7 +118,7 @@ class ProjectDays:
 
     def _commits_to_worklog(self):
         days = [ co.date for co in self.commits ]
-        self.worklogs = { day: str(WORKDAY_HOURS) for day in sorted(list(set(days))) }
+        self.worklogs = { day: str(DAILY_HOURS) for day in sorted(list(set(days))) }
 
     def write_days_json(self, worklog_file):
         self._commits_to_worklog()
@@ -174,7 +151,7 @@ class ProjectDays:
         total_hours = reduce(lambda x,y: x + y, [ int(x) for x in self.worklogs.values() ])
         fee = Decimal(total_hours * hourly_rate)
         fee = fee.quantize(Decimal('.01'), rounding=ROUND_HALF_DOWN)
-        tax = Decimal(fee * Decimal(TAX_RATE/100))
+        tax = Decimal(fee * Decimal(VAT_PERCENT/100))
         tax = tax.quantize(Decimal('.01'), rounding=ROUND_HALF_DOWN)
 
         locale.setlocale(locale.LC_NUMERIC, '')
@@ -183,7 +160,7 @@ class ProjectDays:
                 'date': daystr(self.end_date),
                 'hours': total_hours,
                 'rate': hourly_rate,
-                'tax_rate': TAX_RATE,
+                'tax_rate': VAT_PERCENT,
                 'fee': locale.format('%.2f', fee, grouping=True),
                 'tax': locale.format('%.2f', tax, grouping=True),
                 'total': locale.format('%.2f', fee + tax, grouping=True),
@@ -262,15 +239,15 @@ if __name__ == '__main__':
         print('please use python3!')
         exit(1)
 
-    work_file = os.path.join(workspace_path, 'reeknersprook', 'tools', 'git2latex', 'workdays.json')
-    template_dir = os.path.join(workspace_path, 'reeknersprook', 'tools', 'git2latex')
+    template_dir = os.path.dirname(TEMPLATE_PATH)
+    template = os.path.basename(TEMPLATE_PATH)
 
     parser = ArgumentParser()
     parser.add_argument('-p', '--phase', default='1', choices=['1', '2'])
-    parser.add_argument('-w', '--workrecords', default=work_file)
-    parser.add_argument('-t', '--template', default='bill-example.tex')
-    parser.add_argument('-s', '--startdate', default=default_start)
-    parser.add_argument('-e', '--enddate', default=default_end)
+    parser.add_argument('-w', '--workrecords', default=WORK_RECORDS)
+    parser.add_argument('-t', '--template', default=template)
+    parser.add_argument('-s', '--startdate', default=START_DATE)
+    parser.add_argument('-e', '--enddate', default=END_DATE)
     parser.add_argument('-l', '--linelength', default=60, type=int)
     parser.add_argument('-r', '--hourlyrate', default=80, type=int)
 
@@ -280,8 +257,8 @@ if __name__ == '__main__':
     edate = datetime.strptime(args.enddate + ' +0100', '%Y-%m-%d %z')
 
     project_list = []
-    for proj in projects:
-        ws_path = os.path.join(workspace_path, proj['workspace'])
+    for proj in PROJECTS:
+        ws_path = os.path.join(BASE_DIR, proj['workspace'])
         project_list.append(ProjectDays(sdate, edate, ws_path, proj['name'], parse=True))
 
     all_commits = ProjectDays(sdate, edate, name='all')
