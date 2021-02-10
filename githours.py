@@ -77,10 +77,11 @@ class Commit:
 
 
 class ProjectDays:
-    def __init__(self, start_date: datetime, end_date: datetime, workspace: str=None, name: str=None, commits: list=None, parse=False):
+    def __init__(self, start_date: datetime, end_date: datetime, workspace: str=None, author: str=None, name: str=None, commits: list=None, parse=False):
         self.workspace = workspace
         self.start_date = start_date
         self.end_date = end_date
+        self.author = author
         self.name = name
         self.commits = commits if commits is not None else list()
         self.__it = 0
@@ -96,7 +97,7 @@ class ProjectDays:
             print('error: not a git workspace!')
             exit(1)
 
-        s = subprocess.check_output('git log --author="Lutz Ballaschke"', shell=True)
+        s = subprocess.check_output('git log --author="{}"'.format(self.author), shell=True)
         s = s.decode('utf-8')
 
         valid_date = False
@@ -263,7 +264,7 @@ if __name__ == '__main__':
 
     project_list = []
     for proj in PROJECTS:
-        project_list.append(ProjectDays(sdate, edate, proj['workspace'], proj['name'], parse=True))
+        project_list.append(ProjectDays(sdate, edate, **proj, parse=True))
 
     all_commits = ProjectDays(sdate, edate, name='all')
     for proj in project_list:

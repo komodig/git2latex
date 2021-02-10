@@ -5,10 +5,12 @@ import os
 PROJECTS = [
     {
         'workspace': os.path.join('/', 'home', 'karl', 'workspace', 'reeknersprook'),
+        'author': 'Lutz Ballaschke',
         'name': 'rs'
     },
     {
         'workspace': os.path.join('/', 'home', 'karl', 'workspace', 'avr-uno'),
+        'author': 'Lutz Ballaschke',
         'name': 'avr'
     }
 ]
