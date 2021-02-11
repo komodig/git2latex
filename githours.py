@@ -193,6 +193,8 @@ class ProjectDays:
         with open(latex_file, 'w') as tf:
             tf.write(latex)
 
+        return latex_file
+
     def _logs_for_day(self, day, line_length):
         lines_orig = [ {'text':c.text, 'name':c.proj_name } for c in list(filter(lambda x: x.date == day, self.commits)) ]
         lines_mod = []
@@ -271,6 +273,7 @@ if __name__ == '__main__':
         all_commits += proj
 
     if args.phase == '1':
+        print('assuming {} hours per day'.format(DAILY_HOURS))
         all_commits.write_days_json(args.workdays)
         all_commits.write_text_json(args.messages)
 
@@ -278,5 +281,6 @@ if __name__ == '__main__':
         commits = load_text_json(args.messages)
         all_commits = ProjectDays(sdate, edate, name='all', commits=commits)
         all_commits.worklogs = load_days_json(args.workdays)
-        all_commits.render_template(template_dir, args.template, HOURLY_RATE, LINE_LENGTH)
+        of = all_commits.render_template(template_dir, args.template, HOURLY_RATE, LINE_LENGTH)
+        exit(of)
 
