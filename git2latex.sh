@@ -25,5 +25,5 @@ echo "*** 2nd run to render template from json data..."
 res_tex=`python githours.py -w $workdays -m $messages -t $template -p 2 2>&1 > /dev/null`
 echo "result: $res_tex"
 res_pdf=`echo $res_tex | sed -e 's/\.tex/.pdf/'`
-echo "pdf target; $res_pdf"
+echo "pdf target: $res_pdf"
 pdflatex -halt-on-error $res_tex && $viewer $res_pdf &
