@@ -4,20 +4,20 @@ import os
 
 PROJECTS = [
     {
-        'workspace': os.path.join('/', 'home', 'karl', 'workspace', 'git2latex'),
-        'author': 'Lutz',
-        'name': 'g2l'
+        'workspace': os.path.join('/', 'home', 'karl', 'workspace', 'geoip-frontend'),
+        'author': 'Lutz Ballaschke',
+        'name': 'gip'
     },
     {
-        'workspace': os.path.join('/', 'home', 'karl', 'workspace', 'avr-uno'),
+        'workspace': os.path.join('/', 'home', 'karl', 'workspace', 'rs-backend'),
         'author': 'Lutz Ballaschke',
-        'name': 'avr'
+        'name': 'rsb'
     }
 ]
-START_DATE = '2018-01-01'
-END_DATE = '2021-02-11'
+START_DATE = '2022-01-01'
+END_DATE = '2022-02-15'
 DAILY_HOURS = 8
 HOURLY_RATE = 80
-VAT_PERCENT = 16
+VAT_PERCENT = 19
 PAGE_LINES = 44
 LINE_LENGTH = 60

@@ -39,8 +39,11 @@ def _break_into_lines(line: str, max_length: int):
     else:
         return [line]
 
+def worklogs_from_commits(commits):
+    days = [(co.date, co.hours) for co in commits]
+    return {day: hours for (day, hours) in sorted(list(set(days)))}
 
-def load_text_json(worklog_file):
+def load_worklogs_json(worklog_file):
     """
     @param worklog_file: json file with commit messages
     @return:
@@ -54,18 +57,10 @@ def load_text_json(worklog_file):
 
     return commits
 
-
-def load_days_json(worklog_file):
-    print('reading: ' + worklog_file)
-    with open(worklog_file, 'r') as wlog:
-        worklogs = json.loads(wlog.read())
-
-    return worklogs
-
-
 class Commit:
-    def __init__(self, date: str, proj_name: str, text=None):
+    def __init__(self, date: str, proj_name: str, hours=DAILY_HOURS, text=None):
         self.date = date
+        self.hours = int(hours)
         self.text = '' if text is None else text
         self.proj_name = proj_name
 
@@ -73,7 +68,7 @@ class Commit:
         return '{} {} ({})'.format(self.date, self.text, self.proj_name)
 
     def serialize(self):
-        return {'date': self.date, 'text': self.text, 'proj_name': self.proj_name}
+        return {'date': self.date, 'hours': str(self.hours), 'text': self.text, 'proj_name': self.proj_name}
 
 
 class ProjectDays:
@@ -118,18 +113,7 @@ class ProjectDays:
                     if valid_date:
                         self.commits[-1].text += ' ' + line.strip().replace('\n', ' ')
 
-    def _commits_to_worklog(self):
-        days = [ co.date for co in self.commits ]
-        self.worklogs = { day: str(DAILY_HOURS) for day in sorted(list(set(days))) }
-
-    def write_days_json(self, worklog_file):
-        self._commits_to_worklog()
-        print('writing: ' + worklog_file)
-        with open(worklog_file, 'w') as wlog:
-            wlog.write(json.dumps(self.worklogs))
-
-    def write_text_json(self, worklog_file):
-        self._commits_to_worklog()
+    def write_worklogs_json(self, worklog_file):
         print('writing: ' + worklog_file)
         with open(worklog_file, 'w') as wlog:
             for commit in self.commits:
@@ -203,7 +187,9 @@ class ProjectDays:
             line_text = line_text.replace('%', '')    # no % when using pdflatex
             #print(line_text)
             new_lines = _break_into_lines(line_text, line_length)
-            new_lines[-1] = '{} ({})'.format(new_lines[-1], line['name'])
+            # append proj-name if there are multiple projects
+            if len(PROJECTS) > 1:
+                new_lines[-1] = '{} ({})'.format(new_lines[-1], line['name'])
             #print(new_lines)
             #print('------------------')
 
@@ -245,7 +231,6 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-p', '--phase', default='1', choices=['1', '2'])
     parser.add_argument('-w', '--workdays', default='workdays.json')
-    parser.add_argument('-m', '--messages', default='messages.json')
     parser.add_argument('-t', '--template', default='bill-example.tex')
 
     args = parser.parse_args()
@@ -257,9 +242,6 @@ if __name__ == '__main__':
 
     if os.path.dirname(args.workdays) == '':
         args.workdays = os.path.join(os.getcwd(), args.workdays)
-
-    if os.path.dirname(args.messages) == '':
-        args.messages = os.path.join(os.getcwd(), args.messages)
 
     sdate = datetime.strptime(START_DATE + ' +0100', '%Y-%m-%d %z')
     edate = datetime.strptime(END_DATE + ' +0100', '%Y-%m-%d %z')
@@ -274,13 +256,12 @@ if __name__ == '__main__':
 
     if args.phase == '1':
         print('assuming {} hours per day'.format(DAILY_HOURS))
-        all_commits.write_days_json(args.workdays)
-        all_commits.write_text_json(args.messages)
+        all_commits.write_worklogs_json(args.workdays)
 
     if args.phase == '2':
-        commits = load_text_json(args.messages)
+        commits = load_worklogs_json(args.workdays)
         all_commits = ProjectDays(sdate, edate, name='all', commits=commits)
-        all_commits.worklogs = load_days_json(args.workdays)
+        all_commits.worklogs = worklogs_from_commits(commits)
         of = all_commits.render_template(template_dir, args.template, HOURLY_RATE, LINE_LENGTH)
         exit(of)
 
