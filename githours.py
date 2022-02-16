@@ -60,7 +60,7 @@ def load_worklogs_json(worklog_file):
 class Commit:
     def __init__(self, date: str, proj_name: str, hours=DAILY_HOURS, text=None):
         self.date = date
-        self.hours = int(hours)
+        self.hours = float(hours)
         self.text = '' if text is None else text
         self.proj_name = proj_name
 
@@ -124,7 +124,10 @@ class ProjectDays:
         for day in self.worklogs.keys():
             lines = self._logs_for_day(day, line_length)
             # first line per day with date and hours
-            text_lines.append({'date': day, 'hours': self.worklogs[day],'text': lines.pop(0), 'count': self.line_count % PAGE_LINES})
+            hours = str(self.worklogs[day])
+            if hours.endswith(".0"):
+                hours = hours[:-2]
+            text_lines.append({'date': day, 'hours': hours, 'text': lines.pop(0), 'count': self.line_count % PAGE_LINES})
             self.line_count += 1
             for lin in lines:
                 text_lines.append({'date': '', 'hours': '','text': lin, 'count': self.line_count % PAGE_LINES})
@@ -133,7 +136,7 @@ class ProjectDays:
         return text_lines
 
     def _template_context(self, hourly_rate, line_length):
-        total_hours = reduce(lambda x,y: x + y, [ int(x) for x in self.worklogs.values() ])
+        total_hours = reduce(lambda x,y: x + y, [ float(x) for x in self.worklogs.values() ])
         fee = Decimal(total_hours * hourly_rate)
         fee = fee.quantize(Decimal('.01'), rounding=ROUND_HALF_DOWN)
         tax = Decimal(fee * Decimal(VAT_PERCENT/100))
@@ -149,7 +152,7 @@ class ProjectDays:
                 'fee': locale.format('%.2f', fee, grouping=True),
                 'tax': locale.format('%.2f', tax, grouping=True),
                 'total': locale.format('%.2f', fee + tax, grouping=True),
-                'worklogs': all_commits._worklogs_context(line_length)
+                'worklogs': self._worklogs_context(line_length)
         }
         return context
 
@@ -221,7 +224,6 @@ class ProjectDays:
 
     def __len__(self):
         return len(self.commits)
-
 
 if __name__ == '__main__':
     if not sys.version.startswith('3'):
